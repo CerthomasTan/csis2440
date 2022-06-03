@@ -1,2 +1,2 @@
 # csis2440
- SLCC Webprogramming Class
+ SLCC Web Programming Class
