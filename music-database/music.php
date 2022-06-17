@@ -1,3 +1,4 @@
+<!--This is for the music.php-->
 <?php
     /*
     Header php, create multidimensional array to store values. Then call the function of insert Album to insert data into
@@ -23,18 +24,20 @@
 <!DOCTYPE html>
 
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <title>Music-Database</title>
-    <link rel="stylesheet" href="css/mystylesheet.css">
-    <script src="js/myscript.js"></script>
-</head>
-<body>
-    <?php
-        //create main content of page
-        echo "<div id='main'>" . printTable($favoriteAlbums) . "</div>";
-    ?>
-</body>
+    <head>
+        <meta charset="utf-8" />
+        <title>Music-Database</title>
+        <link rel="stylesheet" href="css/mystylesheet.css">
+        <script src="js/myscript.js"></script>
+    </head>
+    <body>
+        <div id='main'>
+            <?php
+                //create main content of page
+                echo  printTable($favoriteAlbums);
+            ?>
+        </div>
+    </body>
 </html>
 
 <?php
@@ -71,6 +74,7 @@
         //code block for 1d array
         if(!is_array($albumArray[0])){
             //create table with single column
+            $return .= "<tr><th>Album</th></tr>";
             foreach($albumArray as $album){
                 $return .= "<tr>";
                 $return .= "<td>$album</td>";
@@ -81,7 +85,7 @@
         //code block for multidimensional arrayt
         else{
             //create data column titles (Album, Artist, Link)
-            $return .= "<tr> <td>Album</td> <td>Artist</td> <td>Website</td> </tr>";
+            $return .= "<tr> <th>Album</th> <th>Artist</th> <th>Website</th> </tr>";
             
             //create row for each album
             foreach($albumArray as $album){
@@ -105,6 +109,7 @@
                 $return .= "</tr>";
             }
         }
+        $return .= '</table>';
         //return entire html string code
         return $return;
     }

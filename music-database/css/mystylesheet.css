@@ -43,12 +43,12 @@ table, th, td{
     border-collapse: collapse;
 }
 
-th,td,tr{
+td{
     background-color: white;
     font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
 
-tr:first-child td{
+tr:first-child{
     background-color: black;
     font-weight: bold;
     color:white;
