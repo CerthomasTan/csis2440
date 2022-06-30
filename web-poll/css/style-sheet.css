@@ -1,0 +1,51 @@
+*{
+    padding: 0px;
+    margin: 0px;
+}
+
+body{
+    font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    display:flex;
+    background-color: rgb(7, 42, 56);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    animation: fadeIn 1s;
+    animation-fill-mode: forwards;
+}
+.title{
+    color: white;
+}
+
+.main{
+    margin-top: 20px;
+    border: 10px solid black;
+    background-color: black;
+    border-radius: 10px;
+    
+}
+
+form, .result-container{
+    background-color: antiquewhite;
+    padding: 10px 20px;
+}
+
+h1[class='question-text'], .result-text{
+    padding: 5px 0px;
+    border-bottom: 2px solid black;
+}
+
+h2{
+    padding: 5px 0px;
+}
+
+label, input{
+    margin: 5px 5px;
+    cursor: pointer;
+}
+
+@keyframes fadeIn{
+    0% {opacity: 0; }
+    100% {opacity: 100; }
+}
