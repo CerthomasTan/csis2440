@@ -1,5 +1,12 @@
 <?php
+
+    //index.php
+    
     include "includes/dp.php";
+    include "includes/password.php";
+    
+    //used to convert database to new hash
+    #convertDBPasswords();
 
     //Function that will create page
     function createPage(){
@@ -8,7 +15,9 @@
         
         #echo "<pre>". var_dump($_POST)."</pre>";
         //set varaibales 
+        $content .= "<div><h1>Login Page</h1></div>";
         $content .= "<div id='mainContent'>";
+        
         $loginAttempts = $_POST['loginAttempts']?? 0;
 
         //if post is not set, this is first instance of visiting site. Just create form
@@ -107,12 +116,14 @@
     function checkCredentials($username, $password){
         //connect to db
         $conn = connectToDB();
+        $username = mysqli_real_escape_string($conn, $username);
+        $password = mysqli_real_escape_string($conn, $password);
         //find row where username is equal to user inputed username
         $sql = "SELECT * FROM csis2440_user_secure WHERE username = '$username';";
         $results = mysqli_query($conn, $sql);
         $row = mysqli_fetch_array($results, MYSQLI_ASSOC);
         //if row is not null and the password matches user password, return true and increment loginCount
-        if($row != Null && $row['password'] == $password){
+        if($row != Null && $row['password'] == getEncryptPassword($username,$password)){
             $sql = "UPDATE csis2440_user_secure SET `loginCount` = loginCount+1 WHERE `id` = '".$row['id']."'";
             mysqli_query($conn, $sql);
             mysqli_close($conn);
@@ -129,28 +140,11 @@
     function getLoginCount($username){
         //connect to db
         $conn = connectToDB();
+        $username = mysqli_real_escape_string($conn, $username);
         $sql = "SELECT * FROM csis2440_user_secure WHERE username = '$username';";
         $results = mysqli_query($conn, $sql);
         $row = mysqli_fetch_array($results, MYSQLI_ASSOC);
         return $row['loginCount'];
-    }
-
-    //changes password of user
-    function changePassword($username, $password){
-        $conn = connectToDB();
-        $sql = "SELECT * FROM csis2440_user_secure WHERE username = '$username';";
-        $results = mysqli_query($conn, $sql);
-        $row = mysqli_fetch_array($results, MYSQLI_ASSOC);
-        //update passward column if user exists in db
-        if($row != Null){
-            $sql = "UPDATE csis2440_user_secure SET `password` = '$password' WHERE `id` = '".$row['id']."'";
-            mysqli_query($conn, $sql);
-            return true;
-        }
-        //if user is not found, return
-        else{
-            return false;
-        }
     }
 
     //finds if user exists in db
@@ -169,18 +163,26 @@
         }
     }
 
+    //function will print a list of users from database
     function printUsers(){
+        //prints link to display user list
         $content = '<a href="index.php?getUsers=1">Click to Get Users</a>';
+        //if getUser is not set, set var to null
         $var = $_GET['getUsers']??null;
+        
+        //if getUser exists, create table users
         if($var != null){
+            $content .= "<div id='tableContainer'>";
             //print list of users;
             $conn = connectToDB();
             $sql = "SELECT `username`, `password` FROM csis2440_user_secure;";
             $results = mysqli_query($conn, $sql);
+            
             $content .= "<table><tr><th>UserName</th><th>Password</th></tr>";
             while($row = mysqli_fetch_array($results, MYSQLI_ASSOC)){
                $content .="<tr><td>".$row['username']."</td><td>".$row['password']."</td></tr>";
             }
+            $content .= "</div>";
         }
         return $content;
     }

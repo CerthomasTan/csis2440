@@ -1,5 +1,6 @@
 <?php
-    
+    //dp.php
+
     //connect to local host if http_host equals host
     if($_SERVER["HTTP_HOST"] == 'localhost'){
         DEFINE('HOST', 'localhost');
@@ -21,4 +22,4 @@
         return $conn;
     }
 
-    ?>
+?>

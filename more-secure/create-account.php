@@ -1,14 +1,21 @@
 <?php
 
-include "includes/dp.php";
+    //create-account.php
 
+    //includes files
+    include "includes/dp.php";
+    include "includes/password.php";
+
+    //global vars
     $errorCodes;
 
+    //function will check credential and return true of false if credential are valid
     function checkCredentials(){
         global $errorCodes;
         if(empty($_POST)){
             return false;
         }
+        //check each feild and return error code. if error code is 0, then credits are important
         $errorCodes['username'] = checkUserName();
         $errorCodes['password'] = checkPassword();
         $errorCodes['secretCode'] = checkSecretCode();
@@ -20,6 +27,30 @@ include "includes/dp.php";
         }
     }
 
+    //add user to data base
+    function addToDB($username, $password){
+        //connect to db
+        $conn = connectToDB();
+        
+        //check for sqlinjects
+        $password = mysqli_real_escape_string($conn, $password);
+        $username = mysqli_real_escape_string($conn, $username);
+
+        //encrypt password
+        $password = getEncryptPassword($username, $password);
+
+        //insert into db
+        $sql = "INSERT INTO csis2440_user_secure (`username`, `password`) VALUES ('".$username."','".$password."');";
+        if(mysqli_query($conn,$sql)){
+            return true;
+        }
+        else{
+            return false;
+        }
+
+    }
+
+    //print errorscodes
     function printErrors($errorCodes){
         if(empty($_POST)){
             return;
@@ -53,13 +84,15 @@ include "includes/dp.php";
         return $content;
     }
 
+    //check user name if it exists in db
     function checkUserName(){
         if(empty($_POST['username'])){
             return 2;
         }
 
         $conn = connectToDB();
-        $sql = "SELECT * FROM csis2440_user_secure WHERE username = '".$_POST['username']."';";
+        $username = mysqli_real_escape_string($conn, $_POST['username']);
+        $sql = "SELECT * FROM csis2440_user_secure WHERE username = '".$username."';";
         $results = mysqli_query($conn, $sql);
         if($row = mysqli_fetch_array($results, MYSQLI_ASSOC)){
             
@@ -70,6 +103,7 @@ include "includes/dp.php";
         }
     }
 
+    //check if password and verification password match
     function checkPassword(){
         if(empty($_POST['password'])){
             return 2;
@@ -81,16 +115,18 @@ include "includes/dp.php";
         return 0;
     }
 
+    //check if secretCode matches db db
     function checkSecretCode(){
         if(empty($_POST['secretCode'])){
             return 2;
         }
         $conn = connectToDB();
+        $secretCode = mysqli_real_escape_string($conn, $_POST['secretCode']);
         $sql = "SELECT * FROM secretcode WHERE assignment = 'm5a2';";
         $results = mysqli_query($conn, $sql);
         $row = mysqli_fetch_array($results, MYSQLI_ASSOC);
         //return true if user is found
-        if($row != Null && $row['code'] == $_POST['secretCode']){
+        if($row != Null && $row['code'] == $secretCode){
             return 0;
         }
         //if user is not found, return
@@ -99,6 +135,7 @@ include "includes/dp.php";
         }
     }
 
+    //create new account form
     function createAccountFrom(){
         //start form, form will have post method
         $content = "";
@@ -117,13 +154,13 @@ include "includes/dp.php";
         $content .= "<input id='passwordBox' name='password' type='password' placeholder='Password'>";
         $content .= "</div>";
 
-        //password input
+        //verify password input
         $content .= "<div id='verifyPasswordContainer'>";
-        $content .= "<label for='verifyPasswordBox'>Re-enter Password</label>";
-        $content .= "<input id='passwordBox' name='verifyPassword' type='password' placeholder='Verify Password'>";
+        $content .= "<label for='verifyPasswordBox'>Verify Password</label >";
+        $content .= "<input id='verifyPasswordBox' name='verifyPassword' type='password' placeholder='Verify Password'>";
         $content .= "</div>";
 
-        //password input
+        //secret code input
         $secretCode = $_POST['secretCode']??null;
         $content .= "<div id='secretCodeContainer'>";
         $content .= "<label for='secretCodeBox'>Secret Code</label>";
@@ -152,10 +189,18 @@ include "includes/dp.php";
     <link rel="stylesheet" href="css/style-sheet.css">
 </head>
 <body>
+<div><h1>Create Account Page</h1></div>
     <div id="mainContent">
         <?php
+            //if credentials are valid and able to 
             if(checkCredentials()){
-                echo "added to db"; //insert to db needed
+                if(addToDB($_POST['username'], $_POST['password'])){
+                    echo "<div><h2>User was Created</h2></div><a href='.'><h2>Return to login<h2></a></div>";
+                }
+                else{
+                    echo "<div>Failed to create account, please try again later.</div>";
+                    echo createAccountFrom();
+                }   
             }
             else{
                 echo printErrors($errorCodes);
